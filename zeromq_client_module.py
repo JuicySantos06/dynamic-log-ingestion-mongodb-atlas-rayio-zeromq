@@ -68,13 +68,13 @@ def create_atlas_serverless_instance(atlas_public_api_key_param,atlas_private_ap
     #Check server response status
     while True:
         if response.status_code == 201:
-            print("MongoDB Atlas serverless instance for ZeroMQ pull worker is being created")
-            serverless_instance_state = response.json()["stateName"]
+            print("MongoDB Atlas serverless instance is being created...")
+            urlStatus = "https://cloud.mongodb.com/api/atlas/v1.0/groups/" + projectId + "/serverless/" + cluster_name_param
+            tmp_response = requests.get(urlStatus,auth=HTTPDigestAuth(apiPublicKey, apiPrivateKey))
+            serverless_instance_state = tmp_response.json()["stateName"]
+            print("MongoDB Atlas serverless instance state : " + serverless_instance_state)
             if (serverless_instance_state == "IDLE"):
                 return True
-        else:
-            print("POST request status code : " + response.status_code)
-            print("POST request - error message : " + response.json())
 
 if __name__ == '__main__':
     
