@@ -19,12 +19,10 @@ class switch(object):
     def __init__(self, value):
         self.value = value
         self.fall = False
-
     def __iter__(self):
         """Return the match method once, then stop"""
         yield self.match
         raise StopIteration
-
     def match(self, *args):
         """Indicate whether or not to enter a case suite"""
         if self.fall or not args:
@@ -77,7 +75,6 @@ if __name__ == '__main__':
         else:
             increment = datetime.timedelta(seconds=random.randint(30, 300))
         otime += increment
-
         ip = faker.ipv4()
         dt = otime.strftime('%d/%b/%Y:%H:%M:%S')
         tz = datetime.datetime.now(local).strftime('%z')
