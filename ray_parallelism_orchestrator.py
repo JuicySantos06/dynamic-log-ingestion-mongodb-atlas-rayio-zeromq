@@ -4,7 +4,6 @@ import os
 import time
 import params
 
-#Ray remote function definition, leverage every single core and spread execution over them
 @ray.remote(scheduling_strategy="SPREAD")
 def log_generator_call(m,n,k):
     p = 0
@@ -13,13 +12,9 @@ def log_generator_call(m,n,k):
         os.system(command)
         p += 1
 
-
 if __name__ == '__main__':
-    
     ray.init()
-    
     op_result = []
     for i in range(params.LOG_GEN_WORKERS):
         op_result.append(log_generator_call.remote(i,params.ZEROMQ_SERVER_IP,params.LOG_LOAD_BATCH))
-
     ray.get(op_result)

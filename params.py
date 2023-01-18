@@ -1,5 +1,3 @@
-#Parameters
-
 #Number of log generator module to be created
 LOG_GEN_WORKERS = 100
 
