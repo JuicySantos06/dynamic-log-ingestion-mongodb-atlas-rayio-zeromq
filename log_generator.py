@@ -131,7 +131,12 @@ if __name__ == '__main__':
             time.sleep(args.sleep)
     
     #Send log file to ZeroMQ server
+    k = 1
     for x in open(outFileName, "r"):
         socket.send_string(x)
         message = socket.recv()
-        print("Received message from ZeroMQ server : " + str(message, 'utf-8'))
+        print("------------------------------")
+        print(str(message, 'utf-8') + " : " + str(k))
+        print("------------------------------\n")
+        k += 1
+
