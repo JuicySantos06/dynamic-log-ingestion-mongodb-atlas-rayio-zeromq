@@ -1,1 +1,1 @@
-# dynamic-log-ingestion-mongodb-atlas-rayio-zeromq
+# Demo Dynamic Log Ingestion with MongoDB Atlas Serverless, Ray & ZeroMQ
