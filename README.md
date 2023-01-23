@@ -90,6 +90,8 @@ pip3 install fake-factory
 pip3 install pytz
 pip3 install tzlocal
 pip3 install zmq
+pip3 install pymongo
+pip3 install pandas
 ```
 
 
