@@ -56,5 +56,7 @@
 * SECURITY > Database Access - Add New Databasse User (SCRAM)
 
 ### Step 5 - Download GitHub Repo and edit configuration file
+> First, install Git on AWS EC2 AMI
+
 
 
