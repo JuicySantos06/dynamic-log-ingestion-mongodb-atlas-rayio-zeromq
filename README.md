@@ -66,7 +66,7 @@ SECURITY > Database Access - Add New Databasse User (SCRAM)
 ```
 
 ### Step 5 - Download GitHub Repo and Edit Parameters
-> First, install Git on AWS EC2 AMI
+> First, install Git on your AWS EC2 AMIs
 ```
 sudo yum update
 sudo yum install git
@@ -81,5 +81,15 @@ nano dynamic-log-ingestion-mongodb-atlas-rayio-zeromq/params.py
 > The following link will guide you in creating the aforementioned keys : [Get Started with the Atlas Administration API] (https://www.mongodb.com/docs/atlas/configure-api-access/)
 > Edit your MongoDB Atlas project ID : [Manage Project Settings] (https://www.mongodb.com/docs/atlas/tutorial/manage-project-settings/)
 > Edit the username and password parameters with the user and password you created in the previous step
+> Install the following Python libraries
+```
+pip3 install ray
+pip3 install Faker
+pip3 install numpy
+pip3 install fake-factory
+pip3 install pytz
+pip3 install tzlocal
+```
+
 
 
