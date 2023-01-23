@@ -126,6 +126,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     tmp_result = []
     for i in range(args.num_pull_workers):
-        tmp_result.append(pull_client.remote(params.ZEROMQ_SERVER_IP,params.ZEROMQ_PUSH_PORT,i,params.ATLAS_PUBLIC_API_KEY,params.ATLAS_PRIVATE_API_KEY,params.ATLAS_PROJECT_ID,params.ATLAS_CLOUD_PROVIDER,params.DEPLOYMENT_REGION,params.ATLAS_CLUSTER_NAME_PREFIX.ATLAS_USERNAME,params.ATLAS_PASSWORD))
+        tmp_result.append(pull_client.remote(params.ZEROMQ_SERVER_IP,params.ZEROMQ_PUSH_PORT,i,params.ATLAS_PUBLIC_API_KEY,params.ATLAS_PRIVATE_API_KEY,params.ATLAS_PROJECT_ID,params.ATLAS_CLOUD_PROVIDER,params.DEPLOYMENT_REGION,params.ATLAS_CLUSTER_NAME_PREFIX,params.ATLAS_USERNAME,params.ATLAS_PASSWORD))
         time.sleep(15)
     ray.get(tmp_result)
