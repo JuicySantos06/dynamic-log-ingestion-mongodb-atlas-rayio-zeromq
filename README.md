@@ -49,4 +49,12 @@
 * Instance type = c5.4xlarge
 * Inbound security rule = SSH (TCP, 22) from your IP
 
+### Step 4 - MongoDB Atlas Network and Database Access Controls
+> Whitelist the IP address of instance C into MongoDB Atlas
+* SECURITY > Network Access > IP Access List > Add IP Address
+> Create a database user with read and write role to any database
+* SECURITY > Database Access - Add New Databasse User (SCRAM)
+
+### Step 5 - Download GitHub Repo and edit configuration file
+
 
