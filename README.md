@@ -11,7 +11,7 @@
 > We will use the following technology components: 
 * Pandas as the data analysis library
 * ZeroMQ as the asynchronous messaging broker
-* Ray as the Python framework for parallel, asychronous and distributed tasks.
+* Ray as the Python framework for parallel, asychronous and distributed tasks
 
 
 ## Workflow
@@ -23,4 +23,30 @@
 > Each of the ZeroMQ pull client module has a 1-to-1 relationship with an Atlas serverless intance.
 > In short, the capture and write modules will be isolated and can have a dedicated allocation of server ressources.
 
-### Step 1 : Provision 3 AWS EC2 instances
+### Step 1 : Provision AWS EC2 instance A - Log generating modules orchestrated through Ray
+> The first instance will be hosting the log generating modules.
+* Name = log_gen_server
+* AMI = Amazon Linux 2 AMI (HVM) - kernel 5.10, SSD Volume Type
+* Architecture = 64-bit (x86)
+* Instance type = c5.4xlarge
+* Inbound security rule = SSH (TCP, 22) from your IP
+
+### Step 2 : Provision AWS EC2 instance B - ZeroMQ message broker, REQ/REP and PUSH/PULL patterns
+> The second instance will be hosting the log generating modules.
+* Name = zeromq_server
+* AMI = Amazon Linux 2 AMI (HVM) - kernel 5.10, SSD Volume Type
+* Architecture = 64-bit (x86)
+* Instance type = t2.xlarge
+* Inbound security rule = SSH (TCP, 22) from your IP
+* Inbound security rule = Custom TCP 5050 from your IP address of the first instance you previously created
+* Inbound security rule = Custom TCP 5252 from anywhere - or you could restrict it by choosing a subnet in which the third instance will be connected
+
+### Step 3 : Provision AWS EC2 instance C - ZeroMQ PULL message client orchestratred through Ray
+> The second instance will be hosting the log generating modules.
+* Name = zeromq_server
+* AMI = Amazon Linux 2 AMI (HVM) - kernel 5.10, SSD Volume Type
+* Architecture = 64-bit (x86)
+* Instance type = c5.4xlarge
+* Inbound security rule = SSH (TCP, 22) from your IP
+
+
