@@ -43,7 +43,7 @@
 
 ### Step 3 : Provision AWS EC2 instance C - ZeroMQ PULL message client orchestratred through Ray
 > The second instance will be hosting the log generating modules.
-* Name = zeromq_server
+* Name = zeromq_pull_and_atlas_serverless_client
 * AMI = Amazon Linux 2 AMI (HVM) - kernel 5.10, SSD Volume Type
 * Architecture = 64-bit (x86)
 * Instance type = c5.4xlarge
