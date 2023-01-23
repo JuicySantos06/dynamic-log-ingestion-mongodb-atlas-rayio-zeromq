@@ -89,6 +89,7 @@ pip3 install numpy
 pip3 install fake-factory
 pip3 install pytz
 pip3 install tzlocal
+pip3 install zmq
 ```
 
 
