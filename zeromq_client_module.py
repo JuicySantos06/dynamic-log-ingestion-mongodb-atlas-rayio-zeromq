@@ -12,12 +12,15 @@ import pandas as pd
 import json
 import params
 
+
+#ZeroMQ pull client function definition - the function will connect to a ZeroMQ Push server, retrieve data from it in a PULL mode then send it to a MongoDB Atlas cluster
 @ray.remote(scheduling_strategy="SPREAD")
 def pull_client(zmq_ip,zmq_port,x,a,b,c,d,e,f,g,h):
     print("Instantiating ZeroMQ PULL worker ID : " + str(x + 1))
     context = zmq.Context()
     consumer_receiver = context.socket(zmq.PULL)
     consumer_receiver.connect("tcp://" + zmq_ip + ":" + zmq_port)
+    #Create MongoDB Atlas serverless instance which will be mapped to this ZeroMQ PULL client
     print("Creating MongoDB Atlas serverless instance for ZeroMQ PULL worker ID : " + str(x + 1))
     cls_name = f + "-" + str(x + 1)
     mongodb_atlas_serverless_creation_status = create_atlas_serverless_instance(a,b,c,d,e,cls_name)
@@ -35,11 +38,13 @@ def pull_client(zmq_ip,zmq_port,x,a,b,c,d,e,f,g,h):
             while True:
                 work = consumer_receiver.recv_string()
                 print("ZeroMQ PULL worker ID " + str(x + 1) + " is pulling message from ZeroMQ PUSH server")
+                #Transform each item and send it to MongoDB Atlas
                 json_work = convert_message_format(work)
                 insert_json_work = mongodb_collection.insert_one(json_work)
                 if insert_json_work != None:
                     print("ZeroMQ PULL worker ID " + str(x + 1) + " inserted the message into MongoDB - ObjectId : " + str(insert_json_work.inserted_id))
 
+#Convert log message from ZeroMQ PUSH server into json object for MongoDB Atlas
 def convert_message_format(message_param):
     data = message_param.split()
     last_mile_data = []
@@ -48,6 +53,7 @@ def convert_message_format(message_param):
         last_mile_data.append(data[11 + j])
         j += 1
     last_data = ' '.join(last_mile_data)
+    #Retrieve length of splitted items in list
     data_length = len(data)
     supp_columns=["from_ip","client_id","user_id","date_time","time_offset","request_type","ressource_fetched","http_version","response_status_code","object_size","http_referrer","user_agent_0"]
     to_be_added = data_length - len(supp_columns)
@@ -67,9 +73,11 @@ def convert_message_format(message_param):
             col_name = "user_agent_" + str(k)
             dataframe.drop([col_name],axis=1,inplace=True)
             k += 1
+        #Convert dataframe object into json object
         df_2 = dataframe.to_dict(orient="list")
         return df_2
     
+
 def connect_to_atlas(serverless_instance_param,username_param,password_param):
         username = urllib.parse.quote_plus(username_param)
         password = urllib.parse.quote_plus(password_param)
@@ -77,16 +85,23 @@ def connect_to_atlas(serverless_instance_param,username_param,password_param):
         print("Connection string for serverless instance : " + mongodb_conn)
         return mongodb_conn
 
+
+#MongoDB Atlas Serverless instance function definition - the function will provision a serverless Atlas instance
 def create_atlas_serverless_instance(atlas_public_api_key_param,atlas_private_api_key_param,atlas_project_id_param,cloud_provider_name_param,deployment_region_param,cluster_name_param):
+    #Assign boolean value to object
     true = True
     false = False
+    #Map internal variables to parameters
     apiPublicKey  = atlas_public_api_key_param
     apiPrivateKey = atlas_private_api_key_param
     projectId   = atlas_project_id_param
+    #Define url object
     urlCreate = "https://cloud.mongodb.com/api/atlas/v1.0/groups/" + projectId + "/serverless"
+    #Define headers
     headers = {
         'Content-Type': 'application/json',
     }
+    #Define payload
     serverless_config = {
         "name": cluster_name_param,
         "providerSettings": {
@@ -99,8 +114,11 @@ def create_atlas_serverless_instance(atlas_public_api_key_param,atlas_private_ap
         },
         "terminationProtectionEnabled": false
     }
+    #Send POST request
     response = requests.post(urlCreate,json=serverless_config,auth=HTTPDigestAuth(apiPublicKey, apiPrivateKey),headers=headers)
+    #Check server response status
     while True:
+        #print("MongoDB Atlas serverless instance " + cluster_name_param + " is being created")
         if response.status_code == 201:
             urlStatus = "https://cloud.mongodb.com/api/atlas/v1.0/groups/" + projectId + "/serverless/" + cluster_name_param
             tmp_response = requests.get(urlStatus,auth=HTTPDigestAuth(apiPublicKey, apiPrivateKey))
@@ -110,22 +128,50 @@ def create_atlas_serverless_instance(atlas_public_api_key_param,atlas_private_ap
                 return True
 
 if __name__ == '__main__':
+    
     ray.init()
+
+    #Create parser object
     parser = argparse.ArgumentParser(__file__, description="Distributed ZeroMQ Pull Consumers with Ray")
+    
+    #Add argument for number of ZeroMQ pull workers
     parser.add_argument("--pull-workers", "-pw", dest='num_pull_workers', help="Number of ZeroMQ pull workers to generate", type=int, default=1)
+
+    #Add argument for ZeroMQ Push server ip address
     parser.add_argument("--zeromq-push-server-ip", "-zmqpsip", dest='zeromq_push_server_ip', help="IP address of ZeroMQ Push server", type=str)
+
+    #Add argument for ZeroMQ Push server port
     parser.add_argument("--zeromq-push-server-port", "-zmqpsport", dest='zeromq_push_server_port', help="port address of ZeroMQ Push server", type=str)
+
+    #Add argument for MongoDB Atlas public API key
     parser.add_argument("--atlas-public-api-key", "-apubkey", dest="atlas_public_api_key", help="MongoDB Atlas public API key", type=str)
+
+    #Add argument for MongoDB Atlas private API key
     parser.add_argument("--atlas-private-api-key", "-aprikey", dest="atlas_private_api_key", help="MongoDB Atlas private API key", type=str)
+
+    #Add argument for MongoDB Atlas group ID
     parser.add_argument("--atlas-project-id", "-aprjid", dest="atlas_project_id", help="MongoDB Atlas project ID", type=str)
+
+    #Add argument for MongoDB Atlas Cloud provider name
     parser.add_argument("--cloud-provider-name", "-cpn", dest="cloud_provider_name", help="Cloud provider name", type=str)
+
+    #Add argument for MongoDB deployment region
     parser.add_argument("--deployment-region", "-dr", dest="deployment_region", help="Deployment region", type=str)
+
+    #Add argument for MongoDB Serverless instance cluster name
     parser.add_argument("--cluster-name", "-cn", dest="cluster_name", help="Cluster name", type=str)
+
+    #Add argument for MongoDB username
     parser.add_argument("--username", "-usr", dest="username", help="Atlas username", type=str)
+
+    #Add argument for MongoDB password
     parser.add_argument("--password", "-pwd", dest="password", help="Atlas username's password", type=str)
+
+    #Parse arguments from standard input
     args = parser.parse_args()
+
     tmp_result = []
-    for i in range(args.num_pull_workers):
+    for i in range(params.PULL_WORKERS):
         tmp_result.append(pull_client.remote(params.ZEROMQ_SERVER_IP,params.ZEROMQ_PUSH_PORT,i,params.ATLAS_PUBLIC_API_KEY,params.ATLAS_PRIVATE_API_KEY,params.ATLAS_PROJECT_ID,params.ATLAS_CLOUD_PROVIDER,params.DEPLOYMENT_REGION,params.ATLAS_CLUSTER_NAME_PREFIX,params.ATLAS_USERNAME,params.ATLAS_PASSWORD))
-        time.sleep(15)
+
     ray.get(tmp_result)
