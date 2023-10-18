@@ -1,4 +1,4 @@
-# Log Ingestion with MongoDB Atlas Serverless, Ray & ZeroMQ
+# Log Ingestion with Atlas Serverless, Ray & ZeroMQ
 
 
 
